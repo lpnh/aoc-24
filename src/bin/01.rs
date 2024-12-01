@@ -1,4 +1,5 @@
 use anyhow::{Error, Result};
+use std::collections::HashMap;
 
 const PUZZLE_INPUT: &str = include_str!("../../puzzle_input/day_01.txt");
 
@@ -28,7 +29,26 @@ fn solve_part_1(input: &str) -> Result<String, Error> {
 
 #[cfg(feature = "part_2")]
 fn solve_part_2(input: &str) -> Result<String, Error> {
-    let solution = input.lines().next().unwrap().replace("input", "answer");
+    let mut left_ids: Vec<i32> = vec![];
+    let mut right_ids: Vec<i32> = vec![];
+
+    input.lines().for_each(|line| {
+        let mut pairs = line.split_whitespace();
+        left_ids.push(pairs.next().unwrap().parse::<i32>().unwrap());
+        right_ids.push(pairs.next().unwrap().parse::<i32>().unwrap());
+    });
+
+    let mut right_list_counts = HashMap::new();
+
+    right_ids.iter().for_each(|&number| {
+        *right_list_counts.entry(number).or_insert(0) += 1;
+    });
+
+    let solution = left_ids
+        .iter()
+        .map(|n| n * right_list_counts.get(n).unwrap_or(&0))
+        .sum::<i32>()
+        .to_string();
 
     Ok(solution)
 }
@@ -73,11 +93,14 @@ fn sample_part_1() {
 #[test]
 fn sample_part_2() {
     const SAMPLE_INPUT_2: &str = "\
-sample part 2 input
-goes here
-like this
+3   4
+4   3
+2   5
+1   3
+3   9
+3   3
 ";
-    const SAMPLE_ANSWER_2: &str = "sample part 2 answer";
+    const SAMPLE_ANSWER_2: &str = "31";
 
     assert_eq!(solve_part_2(SAMPLE_INPUT_2).unwrap(), SAMPLE_ANSWER_2);
 }
