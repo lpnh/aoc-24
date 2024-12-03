@@ -4,9 +4,47 @@ const PUZZLE_INPUT: &str = include_str!("../../puzzle_input/day_02.txt");
 
 #[cfg(feature = "part_1")]
 fn solve_part_1(input: &str) -> Result<String, Error> {
-    let solution = input.lines().next().unwrap().replace("input", "answer");
+    let report_lines: Vec<Vec<i32>> = input
+        .lines()
+        .map(|line| {
+            line.split_whitespace()
+                .map(|levels| levels.parse::<i32>().unwrap())
+                .collect()
+        })
+        .collect();
 
-    Ok(solution)
+    // to consider everything safe by default is a terrible idea
+    // i'm really sorry 😭
+    let mut safe_report_count = report_lines.len();
+
+    for line in &report_lines {
+        let mut iter_line = line.iter();
+        let mut cur = *iter_line.next().unwrap();
+
+        let mut is_decreasing = cur > *line.get(1).unwrap_or(&cur);
+
+        for &next in iter_line {
+            if next == cur {
+                safe_report_count -= 1;
+                break;
+            }
+
+            if is_decreasing {
+                if next < cur - 3 || next > cur {
+                    safe_report_count -= 1;
+                    break;
+                }
+            } else if next > cur + 3 || next < cur {
+                safe_report_count -= 1;
+                break;
+            }
+
+            is_decreasing = next < cur;
+            cur = next;
+        }
+    }
+
+    Ok(safe_report_count.to_string())
 }
 
 #[cfg(feature = "part_2")]
@@ -40,11 +78,14 @@ fn main() -> Result<(), Error> {
 #[test]
 fn sample_part_1() {
     const SAMPLE_INPUT_1: &str = "\
-sample part 1 input
-goes here
-like this
+7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9
 ";
-    const SAMPLE_ANSWER_1: &str = "sample part 1 answer";
+    const SAMPLE_ANSWER_1: &str = "2";
 
     assert_eq!(solve_part_1(SAMPLE_INPUT_1).unwrap(), SAMPLE_ANSWER_1);
 }
