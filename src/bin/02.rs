@@ -49,9 +49,78 @@ fn solve_part_1(input: &str) -> Result<String, Error> {
 
 #[cfg(feature = "part_2")]
 fn solve_part_2(input: &str) -> Result<String, Error> {
-    let solution = input.lines().next().unwrap().replace("input", "answer");
+    let report_lines: Vec<Vec<i32>> = input
+        .lines()
+        .map(|line| {
+            line.split_whitespace()
+                .map(|levels| levels.parse::<i32>().unwrap())
+                .collect()
+        })
+        .collect();
 
-    Ok(solution)
+    let mut safe_report_count = report_lines.len();
+
+    for line in &report_lines {
+        let mut problem_dampener_is_charged = true;
+
+        // Determine initial trend
+        let mut trend = line[1] < line[0];
+        let mut last_trend = trend;
+
+        let mut i = 0; // for the current value
+        let mut j = 1; // for the next value
+
+        while j < line.len() {
+            let cur = line[i];
+            let next = line[j];
+
+            if cur == next {
+                if problem_dampener_is_charged {
+                    problem_dampener_is_charged = false;
+                    j += 1;
+                    continue;
+                } else {
+                    safe_report_count -= 1;
+                    break;
+                }
+            }
+
+            trend = next < cur;
+
+            if trend == last_trend {
+                if trend {
+                    if next < cur - 3 || next > cur {
+                        if problem_dampener_is_charged {
+                            problem_dampener_is_charged = false;
+                            j += 1;
+                            continue;
+                        } else {
+                            safe_report_count -= 1;
+                            break;
+                        }
+                    }
+                } else if next > cur + 3 || next < cur {
+                    if problem_dampener_is_charged {
+                        problem_dampener_is_charged = false;
+                        j += 1;
+                        continue;
+                    } else {
+                        safe_report_count -= 1;
+                        break;
+                    }
+                }
+            } else {
+                safe_report_count -= 1;
+                break;
+            }
+
+            last_trend = trend;
+            i += 1;
+            j += 1;
+        }
+    }
+
+    Ok(safe_report_count.to_string())
 }
 
 fn main() -> Result<(), Error> {
@@ -94,11 +163,14 @@ fn sample_part_1() {
 #[test]
 fn sample_part_2() {
     const SAMPLE_INPUT_2: &str = "\
-sample part 2 input
-goes here
-like this
+7 6 4 2 1
+1 2 7 8 9
+9 7 6 2 1
+1 3 2 4 5
+8 6 4 4 1
+1 3 6 7 9
 ";
-    const SAMPLE_ANSWER_2: &str = "sample part 2 answer";
+    const SAMPLE_ANSWER_2: &str = "4";
 
     assert_eq!(solve_part_2(SAMPLE_INPUT_2).unwrap(), SAMPLE_ANSWER_2);
 }
