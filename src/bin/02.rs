@@ -58,69 +58,51 @@ fn solve_part_2(input: &str) -> Result<String, Error> {
         })
         .collect();
 
-    let mut safe_report_count = report_lines.len();
+    let mut safe_report_count = 0;
 
-    for line in &report_lines {
-        let mut problem_dampener_is_charged = true;
+    for line in report_lines {
+        if is_valid_report(&line) {
+            safe_report_count += 1;
+            continue;
+        }
 
-        // Determine initial trend
-        let mut trend = line[1] < line[0];
-        let mut last_trend = trend;
+        let mut safe = false;
 
-        let mut i = 0; // for the current value
-        let mut j = 1; // for the next value
+        for skip_index in 0..line.len() {
+            let mut skipped_report = line.clone();
 
-        while j < line.len() {
-            let cur = line[i];
-            let next = line[j];
+            skipped_report.remove(skip_index);
 
-            if cur == next {
-                if problem_dampener_is_charged {
-                    problem_dampener_is_charged = false;
-                    j += 1;
-                    continue;
-                } else {
-                    safe_report_count -= 1;
-                    break;
-                }
-            }
-
-            trend = next < cur;
-
-            if trend == last_trend {
-                if trend {
-                    if next < cur - 3 || next > cur {
-                        if problem_dampener_is_charged {
-                            problem_dampener_is_charged = false;
-                            j += 1;
-                            continue;
-                        } else {
-                            safe_report_count -= 1;
-                            break;
-                        }
-                    }
-                } else if next > cur + 3 || next < cur {
-                    if problem_dampener_is_charged {
-                        problem_dampener_is_charged = false;
-                        j += 1;
-                        continue;
-                    } else {
-                        safe_report_count -= 1;
-                        break;
-                    }
-                }
-            } else {
-                safe_report_count -= 1;
+            if is_valid_report(&skipped_report) {
+                safe = true;
                 break;
             }
+        }
 
-            last_trend = trend;
-            i += 1;
-            j += 1;
+        if safe {
+            safe_report_count += 1;
         }
     }
 
     Ok(safe_report_count.to_string())
+}
+
+fn is_valid_report(report: &[i32]) -> bool {
+    let trend = report[1] > report[0];
+
+    for i in 1..report.len() {
+        if (report[i] > report[i - 1]) != trend {
+            return false;
+        }
+
+        let diff = report[i] - report[i - 1];
+
+        if diff.abs() < 1 || diff.abs() > 3 {
+            return false;
+        }
+    }
+
+    true
 }
 
 fn main() -> Result<(), Error> {
