@@ -22,9 +22,21 @@ fn solve_part_1(input: &str) -> Result<String, Error> {
 
 #[cfg(feature = "part_2")]
 fn solve_part_2(input: &str) -> Result<String, Error> {
-    let solution = input.lines().next().unwrap().replace("input", "answer");
+    let re = Regex::new(r"(?s)don't\(.*?do\(\)|don't\(.*").unwrap();
+    let memory = re.replace_all(input, "").to_string();
 
-    Ok(solution)
+    let re_2 = Regex::new(r"mul\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)").unwrap();
+
+    let mut sum = 0;
+
+    for cap in re_2.captures_iter(&memory) {
+        let n1 = &cap[1].parse::<u32>().unwrap();
+        let n2 = &cap[2].parse::<u32>().unwrap();
+
+        sum += n1 * n2;
+    }
+
+    Ok(sum.to_string())
 }
 
 fn main() -> Result<(), Error> {
@@ -62,11 +74,9 @@ xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
 #[test]
 fn sample_part_2() {
     const SAMPLE_INPUT_2: &str = "\
-sample part 2 input
-goes here
-like this
+xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))
 ";
-    const SAMPLE_ANSWER_2: &str = "sample part 2 answer";
+    const SAMPLE_ANSWER_2: &str = "48";
 
     assert_eq!(solve_part_2(SAMPLE_INPUT_2).unwrap(), SAMPLE_ANSWER_2);
 }
