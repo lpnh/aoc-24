@@ -1,10 +1,10 @@
-use anyhow::{Error, Result};
+use anyhow::Result;
 use std::collections::HashMap;
 
 const PUZZLE_INPUT: &str = include_str!("../../puzzle_input/day_01.txt");
 
 #[cfg(feature = "part_1")]
-fn solve_part_1(input: &str) -> Result<String, Error> {
+fn solution_part_1(input: &str) -> Result<String> {
     let mut left_ids: Vec<i32> = vec![];
     let mut right_ids: Vec<i32> = vec![];
 
@@ -28,7 +28,7 @@ fn solve_part_1(input: &str) -> Result<String, Error> {
 }
 
 #[cfg(feature = "part_2")]
-fn solve_part_2(input: &str) -> Result<String, Error> {
+fn solution_part_2(input: &str) -> Result<String> {
     let mut left_ids: Vec<i32> = vec![];
     let mut right_ids: Vec<i32> = vec![];
 
@@ -53,30 +53,20 @@ fn solve_part_2(input: &str) -> Result<String, Error> {
     Ok(solution)
 }
 
-fn main() -> Result<(), Error> {
-    println!("\nDay 01\n------");
-
+fn main() -> Result<()> {
     #[cfg(feature = "part_1")]
-    {
-        let answer_part_1 = solve_part_1(PUZZLE_INPUT)?;
-        println!("Part One: {answer_part_1}");
-    }
+    println!("Part One: {}", solution_part_1(PUZZLE_INPUT)?);
 
     #[cfg(feature = "part_2")]
-    {
-        let answer_part_2 = solve_part_2(PUZZLE_INPUT)?;
-        println!("Part Two: {answer_part_2}");
-    }
-
-    println!();
+    println!("Part Two: {}", solution_part_2(PUZZLE_INPUT)?);
 
     Ok(())
 }
 
 #[cfg(feature = "part_1")]
 #[test]
-fn sample_part_1() {
-    const SAMPLE_INPUT_1: &str = "\
+fn test_part_1() -> Result<()> {
+    const EXAMPLE_INPUT_1: &str = "\
 3   4
 4   3
 2   5
@@ -84,15 +74,17 @@ fn sample_part_1() {
 3   9
 3   3
 ";
-    const SAMPLE_ANSWER_1: &str = "11";
+    const EXAMPLE_OUTPUT_1: &str = "11";
 
-    assert_eq!(solve_part_1(SAMPLE_INPUT_1).unwrap(), SAMPLE_ANSWER_1);
+    assert_eq!(solution_part_1(EXAMPLE_INPUT_1)?, EXAMPLE_OUTPUT_1);
+
+    Ok(())
 }
 
 #[cfg(feature = "part_2")]
 #[test]
-fn sample_part_2() {
-    const SAMPLE_INPUT_2: &str = "\
+fn test_part_2() -> Result<()> {
+    const EXAMPLE_INPUT_2: &str = "\
 3   4
 4   3
 2   5
@@ -100,7 +92,9 @@ fn sample_part_2() {
 3   9
 3   3
 ";
-    const SAMPLE_ANSWER_2: &str = "31";
+    const EXAMPLE_OUTPUT_2: &str = "31";
 
-    assert_eq!(solve_part_2(SAMPLE_INPUT_2).unwrap(), SAMPLE_ANSWER_2);
+    assert_eq!(solution_part_2(EXAMPLE_INPUT_2)?, EXAMPLE_OUTPUT_2);
+
+    Ok(())
 }
